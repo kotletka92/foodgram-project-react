@@ -9,6 +9,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from recipes.models import (CHOICES, Favorite, Ingredient, IngredientAmount,
                             Recipe, ShoppingCart, Tag)
 from users.models import Follow
+from api.utils import create_ingredients
 
 User = get_user_model()
 
@@ -51,8 +52,7 @@ class UserFollowSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        if (data['user'] == data['following']
-                and self.context['request'].method == 'POST'):
+        if self.context.get('request') == data['author']:
             raise serializers.ValidationError(
                 'You can not follow yourself'
             )
@@ -163,31 +163,24 @@ class RecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(image=image, **validated_data)
         tags = self.initial_data.get('tags')
+
         for tag_id in tags:
             recipe.tags.add(get_object_or_404(Tag, pk=tag_id))
-        for ingredient in ingredients:
-            IngredientAmount.objects.create(
-                recipe=recipe,
-                ingredient_id=ingredient.get('id'),
-                amount=ingredient.get('amount')
-            )
-        return recipe
 
+        create_ingredients(ingredients, recipe)
+
+        return recipe
+    
     def update(self, instance, validated_data):
         instance.tags.clear()
         tags = self.initial_data.get('tags')
+        ingredients = validated_data.pop('ingredients')
 
         for tag_id in tags:
             instance.tags.add(get_object_or_404(Tag, pk=tag_id))
 
-        IngredientAmount.objects.filter(recipe=instance).delete()
-        for ingredient in validated_data.get('ingredients'):
-            ingredients_amounts = IngredientAmount.objects.create(
-                recipe=instance,
-                ingredient_id=ingredient.get('id'),
-                amount=ingredient.get('amount')
-            )
-            ingredients_amounts.save()
+        ingredients_amounts = create_ingredients(ingredients, instance)
+        ingredients_amounts.save()
 
         if validated_data.get('image') is not None:
             instance.image = validated_data.get('image')

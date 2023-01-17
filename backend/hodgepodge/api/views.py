@@ -3,7 +3,9 @@ import datetime
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, status, viewsets
+from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
+                            ShoppingCart, Tag)
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin, RetrieveModelMixin)
@@ -13,18 +15,18 @@ from rest_framework.permissions import (SAFE_METHODS, AllowAny,
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from users.models import Follow, User
 
 from api.filters import IngredientFilter, RecipiesFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAuthorOrAdmin
-from api.serializers import (FavoriteRecipesSerializer, FollowSerializer,
-                             IngredientAmountSerializer, IngredientSerializer,
-                             RecipeListSerializer, RecipeSerializer,
-                             ShoppingCartSerializer, TagSerializer,
-                             UserFollowSerializer, UserSerializer)
-from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
-                            ShoppingCart, Tag)
-from users.models import Follow, User
+from api.serializers import (UserSerializer, FavoriteRecipesSerializer,
+                             FollowSerializer, IngredientAmountSerializer,
+                             IngredientSerializer, RecipeListSerializer,
+                             RecipeSerializer, ShoppingCartSerializer,
+                             TagSerializer, UserFollowSerializer)
+
+from rest_framework import generics
 
 
 class CreateListDestroyViewSet(
@@ -126,34 +128,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response('The recipe has been removed from the farourites.',
                         status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, permission_classes=[IsAuthenticated])
+    @action(detail=False,
+            methods=['get'],
+            permission_classes=[IsAuthenticated, ])
     def download_shopping_cart(self, request):
-        user = request.user
-        shopping_cart = user.purchases.all()
-        list = {}
-        for item in shopping_cart:
-            recipe = item.recipe
-            ingredients = IngredientAmount.objects.filter(recipe=recipe)
-            for ingredient in ingredients:
-                amount = ingredient.amount
-                name = ingredient.ingredient.name
-                measurement_unit = ingredient.ingredient.measurement_unit
-                if name not in list:
-                    list[name] = {
-                        'measurement_unit': measurement_unit,
-                        'amount': amount
-                    }
-                else:
-                    list[name]['amount'] = (
-                        list[name]['amount'] + amount
-                    )
-        shopping_list = []
-        for item in list:
-            shopping_list.append(f'{item} - {list[item]["amount"]} '
-                                 f'{list[item]["measurement_unit"]} \n')
-        response = HttpResponse(shopping_list, 'Content-Type: text/plain')
-        response['Content-Disposition'] = 'attachment; filename="shoplist.txt"'
-
+        shopping_list = {}
+        ingredients = IngredientAmount.objects.filter(
+            recipe__purchases__user=request.user
+        )
+        for ingredient in ingredients:
+            amount = ingredient.amount
+            name = ingredient.ingredient.name
+            measurement_unit = ingredient.ingredient.measurement_unit
+            if name not in shopping_list:
+                shopping_list[name] = {
+                    'measurement_unit': measurement_unit,
+                    'amount': amount
+                }
+            else:
+                shopping_list[name]['amount'] += amount
+        main_list = ([f"* {item}:{value['amount']}"
+                      f"{value['measurement_unit']}\n"
+                      for item, value in shopping_list.items()])
+        today = datetime.date.today()
+        main_list.append(f'\n From FoodGram with love, {today.year}')
+        response = HttpResponse(main_list, 'Content-Type: text/plain')
+        response['Content-Disposition'] = 'attachment; filename="BuyList.txt"'
         return response
 
 
