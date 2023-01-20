@@ -5,12 +5,12 @@ from django.db import models
 User = get_user_model()
 
 CHOICES = (
-        ('#d6bbcb', 'Розовый'),
-        ('#5e00ff', 'Сиреневый'),
-        ('#81b0fd', 'Синий'),
-        ('#c90076', 'Бордо'),
-        ('#6dc066', 'Зеленый'),
-    )
+    ('#d6bbcb', 'Розовый'),
+    ('#5e00ff', 'Сиреневый'),
+    ('#81b0fd', 'Синий'),
+    ('#c90076', 'Бордо'),
+    ('#6dc066', 'Зеленый'),
+)
 
 
 class Ingredient(models.Model):
@@ -133,7 +133,7 @@ class IngredientAmount(models.Model):
         validators=(
             validators.MinValueValidator(
                 1, message='Минимальное количество ингредиентов 1'),
-            )
+        )
     )
 
     class Meta:
