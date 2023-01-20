@@ -1,5 +1,4 @@
 from django.contrib.admin import ModelAdmin, register
-
 from users.models import Follow, User
 
 

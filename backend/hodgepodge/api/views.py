@@ -1,11 +1,19 @@
 import datetime
 
+from api.filters import IngredientFilter, RecipiesFilter
+from api.pagination import CustomPagination
+from api.permissions import IsAuthorOrAdmin
+from api.serializers import (FavoriteRecipesSerializer, FollowSerializer,
+                             IngredientAmountSerializer, IngredientSerializer,
+                             RecipeListSerializer, RecipeSerializer,
+                             ShoppingCartSerializer, TagSerializer,
+                             UserFollowSerializer, UserSerializer)
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Tag)
-from rest_framework import status, viewsets
+from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin, RetrieveModelMixin)
@@ -16,17 +24,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from users.models import Follow, User
-
-from api.filters import IngredientFilter, RecipiesFilter
-from api.pagination import CustomPagination
-from api.permissions import IsAuthorOrAdmin
-from api.serializers import (UserSerializer, FavoriteRecipesSerializer,
-                             FollowSerializer, IngredientAmountSerializer,
-                             IngredientSerializer, RecipeListSerializer,
-                             RecipeSerializer, ShoppingCartSerializer,
-                             TagSerializer, UserFollowSerializer)
-
-from rest_framework import generics
 
 
 class CreateListDestroyViewSet(

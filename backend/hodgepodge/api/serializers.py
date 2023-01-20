@@ -1,15 +1,14 @@
 import base64
 
+from api.utils import create_ingredients
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-
 from recipes.models import (CHOICES, Favorite, Ingredient, IngredientAmount,
                             Recipe, ShoppingCart, Tag)
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from users.models import Follow
-from api.utils import create_ingredients
 
 User = get_user_model()
 
