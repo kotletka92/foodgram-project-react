@@ -10,7 +10,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+ALLOWED_HOSTS = ['localhost', 'backend', '130.193.53.171']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
