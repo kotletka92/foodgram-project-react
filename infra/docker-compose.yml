@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: popka92/infra-frontend:latest
+    image: popka92/hodgepodge:latest
     restart: always
     volumes:
       - static_value:/app/static/
