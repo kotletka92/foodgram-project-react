@@ -12,7 +12,7 @@ DEBUG = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-ALLOWED_HOSTS = ['localhost', 'backend', '130.193.53.171']
+ALLOWED_HOSTS = ['localhost', 'backend', '158.160.24.157', '*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
