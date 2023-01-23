@@ -19,9 +19,6 @@ class RecipiesFilter(FilterSet):
         field_name='tags__slug',
         to_field_name='slug',
     )
-    author = filters.ModelChoiceFilter(
-        queryset=User.objects.all(),
-    )
     is_favorited = filters.BooleanFilter(
         method='get_is_favorited'
     )
@@ -31,7 +28,7 @@ class RecipiesFilter(FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ['is_favorited', 'author', 'tags', 'is_in_shopping_cart']
+        fields = {'author', }
 
     def get_is_favorited(self, queryset, name, value):
         user = self.request.user
