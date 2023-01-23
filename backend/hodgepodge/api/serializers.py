@@ -173,7 +173,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         for tag_id in tags:
             recipe.tags.add(get_object_or_404(Tag, pk=tag_id))
 
-        create_ingredients(ingredients, recipe)
+        self.create_ingredients(ingredients, recipe)
 
         return recipe
 
