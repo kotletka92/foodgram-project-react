@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
@@ -7,7 +8,11 @@ class User(AbstractUser):
     email = models.EmailField(
         verbose_name='Электронная почта',
         unique=True,
-        max_length=254
+        max_length=254,
+        validators=[ASCIIUsernameValidator()],
+        error_messages={
+            "unique": "Пользователь с такой почтой уже существует",
+        },
     )
     first_name = models.CharField(
         verbose_name='Имя',
@@ -19,7 +24,7 @@ class User(AbstractUser):
     )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
         ordering = ('-pk',)
@@ -45,6 +50,7 @@ class Follow(models.Model):
     )
 
     class Meta:
+        ordering = ('-author_id',)
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = (
@@ -55,4 +61,4 @@ class Follow(models.Model):
         )
 
     def __str__(self):
-        return f' {self.user.username} -> {self.author.username}'
+        return f'{self.user} подписан на {self.author}'

@@ -1,43 +1,34 @@
-from django.contrib.auth import get_user_model
 from django_filters.rest_framework import FilterSet, filters
-from recipes.models import Ingredient, Recipe, Tag
+from rest_framework.filters import SearchFilter
 
-User = get_user_model()
-
-
-class IngredientFilter(FilterSet):
-    name = filters.CharFilter(field_name='name', lookup_expr='istartswith')
-
-    class Meta:
-        model = Ingredient
-        fields = ('name', 'measurement_unit')
+from recipes.models import Recipe, User, Tag
 
 
-class RecipiesFilter(FilterSet):
+class IngredientSearchFilter(SearchFilter):
+    search_param = 'name'
+
+
+class RecipeFilter(FilterSet):
     tags = filters.ModelMultipleChoiceFilter(
-        queryset=Tag.objects.all(),
         field_name='tags__slug',
         to_field_name='slug',
-    )
-    is_favorited = filters.BooleanFilter(
-        method='get_is_favorited'
+        queryset=Tag.objects.all(),
     )
     is_in_shopping_cart = filters.BooleanFilter(
-        method='get_is_in_shopping_cart',
-    )
+        method='filter_is_in_shopping_cart')
+    is_favorited = filters.BooleanFilter(
+        method='filter_is_favorited')
 
     class Meta:
         model = Recipe
-        fields = {'author', }
+        fields = ('author', )
 
-    def get_is_favorited(self, queryset, name, value):
-        user = self.request.user
-        if value and user.is_authenticated:
-            return queryset.filter(favorite_recipe__user=user)
+    def filter_is_favorited(self, queryset, name, value):
+        if self.request.user.is_authenticated and value:
+            return queryset.filter(favorites__author=self.request.user)
         return queryset
 
-    def get_is_in_shopping_cart(self, queryset, name, value):
-        user = self.request.user
-        if value and user.is_authenticated:
-            return queryset.filter(recipe_shopping_cart__user=user)
+    def filter_is_in_shopping_cart(self, queryset, name, value):
+        if self.request.user.is_authenticated and value:
+            return queryset.filter(customers__author=self.request.user)
         return queryset
