@@ -6,17 +6,17 @@ from django.http import HttpResponse
 from recipes.models import IngredientAmount
 
 
-def shopping_cart(self, request, author):
+def shopping_cart(self, request, user):
     """Download shoppig cart."""
-    sum_ingredients_in_recipes = IngredientAmount.objects.filter(
-        recipe__shopping_cart__author=author
+    sum_ingredients = IngredientAmount.objects.filter(
+        recipe__customer__author=user
     ).values(
         'ingredient__name', 'ingredient__measurement_unit'
     ).annotate(
         amounts=Sum('amount', distinct=True)).order_by('amounts')
     today = date.today().strftime("%d-%m-%Y")
     shopping_list = f'Список покупок на: {today}\n\n'
-    for ingredient in sum_ingredients_in_recipes:
+    for ingredient in sum_ingredients:
         shopping_list += (
             f'{ingredient["ingredient__name"]} - '
             f'{ingredient["amounts"]} '

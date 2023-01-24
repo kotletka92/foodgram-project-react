@@ -12,7 +12,7 @@ DEBUG = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-ALLOWED_HOSTS = ['localhost', 'backend', '158.160.24.157', '*']
+ALLOWED_HOSTS = ['localhost', 'backend', '51.250.23.127', '*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -147,8 +147,6 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
-USE_L10N = True
-
-USE_TZ = True
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')

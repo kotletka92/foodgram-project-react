@@ -10,7 +10,8 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         max_length=200,
-        verbose_name='Название'
+        verbose_name='Название',
+        db_index=True,
     )
     measurement_unit = models.CharField(
         max_length=200,
@@ -18,13 +19,9 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['id']
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = [models.UniqueConstraint(
-            fields=['name', 'measurement_unit'],
-            name='unique_ingredient')
-        ]
 
     def __str__(self):
         return self.name
@@ -34,9 +31,9 @@ class Tag(models.Model):
     """Represents Tags."""
 
     CHOICES = (
-        ('#d6bbcb', 'Розовый'),
-        ('#5e00ff', 'Сиреневый'),
-        ('#81b0fd', 'Синий'),
+        ('#c90076', 'Розовый'),
+        ('#7c12e1', 'Сиреневый'),
+        ('#068cf1', 'Синий'),
         ('#c90076', 'Бордо'),
         ('#6dc066', 'Зеленый'),
     )
@@ -78,7 +75,8 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=200,
-        verbose_name='Название'
+        verbose_name='Название',
+        db_index=True
     )
     image = models.ImageField(
         upload_to='recipes/',
@@ -102,15 +100,21 @@ class Recipe(models.Model):
             validators.MinValueValidator(
                 1, message='Минимальное время приготовления 1 минута'),),
         verbose_name='Время приготовления')
+    created = models.DateTimeField(
+        "Дата создания",
+        auto_now_add=True,
+        help_text="Автоматически устанавливается текущая дата и время",
+    )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ("-created",)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        constraints = [
-            models.UniqueConstraint(fields=['author', 'name'],
-                                    name='unique_author_name')
-        ]
+        default_related_name = 'recipe'
+        # constraints = [
+        #     models.UniqueConstraint(
+        #         fields=['name', 'author'],
+        #         name='unique_recipe')]
 
     def __str__(self):
         return self.name
@@ -166,10 +170,6 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
-        constraints = [
-            models.UniqueConstraint(fields=['author', 'recipe'],
-                                    name='favorite_recipies')
-        ]
 
 
 class ShoppingCart(models.Model):
@@ -191,10 +191,6 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'В корзине'
-        constraints = [
-            models.UniqueConstraint(fields=['author', 'recipe'],
-                                    name='unique_cart_user')
-        ]
 
     def __str__(self):
         return f'Рецепт {self.recipe} в списке покупок у {self.author}'

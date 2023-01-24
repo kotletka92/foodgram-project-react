@@ -6,9 +6,9 @@ from .models import (Favorite, Ingredient, IngredientAmount, Recipe,
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'color', 'slug')
-    search_fields = ('name', 'color', 'slug')
-    list_filter = ('name', 'color', 'slug',)
+    list_display = ('name', 'color', 'slug')
+    search_fields = ('name', 'slug')
+    list_filter = ('name', 'color')
     ordering = ('name',)
     empty_value_display = '-пусто-'
 
@@ -40,8 +40,8 @@ class IngredientAmountInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author')
-    search_fields = ('username', 'email', 'first_name', 'last_name',)
-    list_filter = ('author', 'name', 'tags',)
+    search_fields = ('author',)
+    list_filter = ('author', 'name', 'tags', 'ingredients', 'cooking_time')
     ordering = ('name',)
     empty_value_display = '-пусто-'
     inlines = (IngredientAmountInline, )

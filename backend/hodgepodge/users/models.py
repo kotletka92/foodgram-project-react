@@ -5,6 +5,13 @@ from django.db.models import UniqueConstraint
 
 
 class User(AbstractUser):
+
+    USER = 'user'
+    ADMIN = 'admin'
+    ROLE_USER = [
+        (USER, 'Пользователь'),
+        (ADMIN, 'Администратор')
+    ]
     email = models.EmailField(
         verbose_name='Электронная почта',
         unique=True,
@@ -22,14 +29,24 @@ class User(AbstractUser):
         verbose_name='Фамилия',
         max_length=150,
     )
+    role = models.CharField(
+        max_length=15,
+        choices=ROLE_USER,
+        default=USER,
+        verbose_name='Пользовательская роль'
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
-        ordering = ('-pk',)
+        ordering = ("email",)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    @property
+    def admin(self):
+        return self.role == self.ADMIN
 
     def __str__(self):
         return self.username
@@ -50,7 +67,6 @@ class Follow(models.Model):
     )
 
     class Meta:
-        ordering = ('-author_id',)
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = (
