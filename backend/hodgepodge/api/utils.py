@@ -9,7 +9,7 @@ from recipes.models import IngredientAmount
 def shopping_cart(self, request, user):
     """Download shoppig cart."""
     sum_ingredients = IngredientAmount.objects.filter(
-        recipe__cart__user=request.user
+        recipe__customer__author=user
     ).values(
         'ingredient__name', 'ingredient__measurement_unit'
     ).annotate(
