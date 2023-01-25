@@ -5,6 +5,7 @@ from django.core.files.base import ContentFile
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 
 from recipes.models import (Recipe, Ingredient,
@@ -70,7 +71,12 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
-        read_only_fields = '__all__',
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Ingredient.objects.all(),
+                fields=('name', 'measurement_unit')
+            )
+        ]
 
 
 class TagSerializer(serializers.ModelSerializer):
