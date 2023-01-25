@@ -93,18 +93,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, id=self.kwargs.get('pk'))
         user = self.request.user
         if request.method == 'POST':
-            if ShoppingCart.objects.filter(author=user,
+            if ShoppingCart.objects.filter(user=user,
                                            recipe=recipe).exists():
                 return Response({'errors': 'Рецепт уже добавлен!'},
                                 status=status.HTTP_400_BAD_REQUEST)
             serializer = ShoppingCartSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
-                serializer.save(author=user, recipe=recipe)
+                serializer.save(user=user, recipe=recipe)
                 return Response(serializer.data,
                                 status=status.HTTP_201_CREATED)
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
-        if not ShoppingCart.objects.filter(author=user,
+        if not ShoppingCart.objects.filter(user=user,
                                            recipe=recipe).exists():
             return Response({'errors': 'Объект не найден'},
                             status=status.HTTP_404_NOT_FOUND)
