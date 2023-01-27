@@ -178,11 +178,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             tags_list.append(tag)
         return value
 
-    def to_representation(self, instance):
-        ingredients = super().to_representation(instance)
-        ingredients['ingredients'] = IngredientAmountSerializer(
-            instance.amount.all(), many=True).data
-        return ingredients
+    def to_representation(self,instance):
+        return RecipeListSerializer(instance, context=self.context).data
 
     def add_tags_ingredients(self, ingredients, tags, model):
         for ingredient in ingredients:
