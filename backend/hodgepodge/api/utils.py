@@ -1,29 +1,63 @@
-from datetime import date
+import base64
+import uuid
 
-from django.db.models import Sum
-from django.http import HttpResponse
+from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers, status
+from rest_framework.response import Response
 
-from recipes.models import IngredientAmount
+from recipes.models import Recipe
 
 
-def shopping_cart(self, request, user):
-    """Download shoppig cart."""
-    sum_ingredients = IngredientAmount.objects.filter(
-        recipe__customer__author=user
-    ).values(
-        'ingredient__name', 'ingredient__measurement_unit'
-    ).annotate(
-        amounts=Sum('amount', distinct=True)).order_by('amounts')
-    today = date.today().strftime("%d-%m-%Y")
-    shopping_list = f'Список покупок на: {today}\n\n'
-    for ingredient in sum_ingredients:
-        shopping_list += (
-            f'{ingredient["ingredient__name"]} - '
-            f'{ingredient["amounts"]} '
-            f'{ingredient["ingredient__measurement_unit"]}\n'
+def post(request, pk, model, serializer):
+    recipe = get_object_or_404(Recipe, id=pk)
+    if model.objects.filter(author=request.user, recipe=recipe).exists():
+        return Response(
+            {'errors': 'Recipe has already been added'},
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    shopping_list += '\n\nFoodgram (2022)'
-    filename = 'shopping_list.txt'
-    response = HttpResponse(shopping_list, content_type='text/plain')
-    response['Content-Disposition'] = f'attachment; filename={filename}'
-    return response
+    instance = model(recipe=recipe, author=request.user)
+    instance.save()
+    serializer = serializer(
+            get_object_or_404(Recipe, id=pk), context={"request": request}
+    )
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+def delete(request, pk, model):
+    recipe = get_object_or_404(Recipe, id=pk)
+    if model.objects.filter(author=request.user, recipe=recipe).exists():
+        follow = get_object_or_404(model, author=request.user,
+                                   recipe=recipe)
+        follow.delete()
+        return Response(
+            'Recipe has been deleted',
+            status=status.HTTP_204_NO_CONTENT
+        )
+    return Response(
+        {'errors': 'The recipy was not in the list'},
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+
+def recipe_ingredient_create(ingredients_data, models, recipe):
+    bulk_create_data = (
+        models(
+            recipe=recipe,
+            ingredient=ingredient_data['ingredient'],
+            amount=ingredient_data['amount'])
+        for ingredient_data in ingredients_data
+    )
+    models.objects.bulk_create(bulk_create_data)
+
+
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            formating, imgstr = data.split(';base64,')
+            ext = formating.split('/')[-1]
+            id = uuid.uuid4()
+            data = ContentFile(
+                base64.b64decode(imgstr),
+                name=id.urn[9:] + '.' + ext)
+        return super().to_internal_value(data)

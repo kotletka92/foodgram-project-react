@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.core import validators
 from django.db import models
 
@@ -89,7 +88,6 @@ class Recipe(models.Model):
         Ingredient,
         through='IngredientAmount',
         verbose_name='Ингредиенты',
-        related_name='recipes',
     )
     tags = models.ManyToManyField(
         Tag,
@@ -107,14 +105,14 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ("-created",)
+        ordering = ('-created',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         default_related_name = 'recipe'
         constraints = [
-             models.UniqueConstraint(
-                 fields=['name', 'author'],
-                 name='unique_recipe')]
+            models.UniqueConstraint(
+                fields=['name', 'author'],
+                name='unique_recipe')]
 
     def __str__(self):
         return self.name
@@ -126,7 +124,6 @@ class IngredientAmount(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Ингредиент',
-        related_name='amount'
     )
     recipe = models.ForeignKey(
         Recipe,
@@ -157,7 +154,7 @@ class Favorite(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
+        verbose_name='Автор',
         related_name='favorites'
     )
     recipe = models.ForeignKey(
@@ -168,8 +165,15 @@ class Favorite(models.Model):
     )
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
+        constraints = [models.UniqueConstraint(
+            fields=['author', 'recipe'],
+            name='favorite_unique')]
+
+    def __str__(self):
+        return f'{self.recipe}'
 
 
 class ShoppingCart(models.Model):
@@ -178,19 +182,22 @@ class ShoppingCart(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='purchases',
+        related_name='cart',
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='customers',
+        related_name='cart',
         verbose_name='Рецепт',
     )
 
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'В корзине'
+        constraints = [models.UniqueConstraint(
+            fields=['author', 'recipe'],
+            name='unique_cart')]
 
     def __str__(self):
         return f'Рецепт {self.recipe} в списке покупок у {self.author}'

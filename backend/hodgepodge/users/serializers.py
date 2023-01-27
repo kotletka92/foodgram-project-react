@@ -1,6 +1,7 @@
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
+from api.utils import Base64ImageField
 from recipes.models import Recipe
 from users.models import Follow, User
 
@@ -29,10 +30,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
-    """Converts Recipes' data."""
+    """Serialiser to display a recipe in FollowSerializer."""
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'cooking_time', 'image',)
+        fields = ('id', 'name', 'cooking_time', 'image')
 
 
 class FollowSerializer(serializers.ModelSerializer):
