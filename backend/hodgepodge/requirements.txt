@@ -57,3 +57,4 @@ drf_extra_fields
 Markdown==3.3.4
 psycopg2-binary==2.8.6
 python-dotenv
+drf-spectacular==0.17.3

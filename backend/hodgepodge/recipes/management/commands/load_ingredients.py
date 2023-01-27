@@ -16,4 +16,4 @@ class Command(BaseCommand):
                     Ingredient.objects.get_or_create(
                         name=row[0], measurement_unit=row[1],
                     )
-        self.stdout.write(self.style.SUCCESS('Все ingred. загружены!'))
+        self.stdout.write(self.style.SUCCESS('Все индигриенты загружены!'))
