@@ -134,8 +134,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
 class RecipeWriteSerializer(serializers.ModelSerializer):
     """Serializer for Recipe model: all actions."""
     ingredients = IngredientAddSerializer(
-        many=True,
-        write_only=True)
+        many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True)
@@ -179,7 +178,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return value
 
     def to_representation(self,instance):
-        return RecipeListSerializer(instance, context=self.context).data
+        context = {'request': self.context.get('request')}
+        return RecipeListSerializer(instance, context=context).data
 
     def add_tags_ingredients(self, ingredients, tags, model):
         for ingredient in ingredients:
