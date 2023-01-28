@@ -30,7 +30,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
-    """Serialiser to display a recipe in FollowSerializer."""
     image = Base64ImageField()
 
     class Meta:
@@ -39,7 +38,6 @@ class RecipeShortSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    """Converts Follows' data."""
     email = serializers.ReadOnlyField(source='author.email')
     id = serializers.ReadOnlyField(source='author.id')
     username = serializers.ReadOnlyField(source='author.username')

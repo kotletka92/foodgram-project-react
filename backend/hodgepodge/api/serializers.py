@@ -9,7 +9,6 @@ from users.serializers import UserSerializer
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    """Converts Favorite's data."""
     name = serializers.ReadOnlyField(
         source='recipe.name',
         read_only=True)
@@ -29,7 +28,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
-    """Converts Cart's data."""
     name = serializers.ReadOnlyField(
         source='recipe.name',
         read_only=True)
@@ -49,7 +47,6 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Converts Ingredient's data."""
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
@@ -57,7 +54,6 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Serializer для модели Tag."""
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
@@ -65,7 +61,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
-    """Serializer for intermidiate Recipe and Ingredient model."""
     id = serializers.ReadOnlyField(
         source='ingredient.id')
     name = serializers.ReadOnlyField(
@@ -79,7 +74,6 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 
 
 class RecipeListSerializer(serializers.ModelSerializer):
-    """Serializer for Recipe model: reading data."""
     author = UserSerializer()
     tags = TagSerializer(
         many=True,
@@ -113,7 +107,6 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 
 class IngredientAddSerializer(serializers.ModelSerializer):
-    """Converts 'ingredient' field in Recipe model."""
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all())
     amount = serializers.IntegerField()
@@ -124,7 +117,6 @@ class IngredientAddSerializer(serializers.ModelSerializer):
 
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
-    """Serialiser to display a recipe in FollowSerializer."""
 
     class Meta:
         model = Recipe
@@ -132,9 +124,9 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    """Serializer for Recipe model: all actions."""
     ingredients = IngredientAddSerializer(
-        many=True)
+        many=True,
+        write_only=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True)
@@ -177,9 +169,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             tags_list.append(tag)
         return value
 
-    def to_representation(self,instance):
-        context = {'request': self.context.get('request')}
-        return RecipeListSerializer(instance, context=context).data
+    def to_representation(self, instance):
+        ingredients = super().to_representation(instance)
+        ingredients['ingredients'] = IngredientAmountSerializer(
+            instance.amount.all(), many=True).data
+        return ingredients
 
     def add_tags_ingredients(self, ingredients, tags, model):
         for ingredient in ingredients:

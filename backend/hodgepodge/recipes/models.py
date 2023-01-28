@@ -140,7 +140,6 @@ class IngredientAmount(models.Model):
     )
 
     class Meta:
-        ordering = ['ingredient']
         verbose_name = 'Состав рецепта'
         verbose_name_plural = 'Состав рецепта'
         constraints = [
