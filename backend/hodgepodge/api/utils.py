@@ -19,7 +19,7 @@ def post(request, pk, model, serializer):
     instance = model(recipe=recipe, author=request.user)
     instance.save()
     serializer = serializer(
-            get_object_or_404(Recipe, id=pk), context={"request": request}
+        get_object_or_404(Recipe, id=pk), context={"request": request}
     )
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
