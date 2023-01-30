@@ -125,8 +125,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     ingredients = IngredientAddSerializer(
-        many=True,
-        write_only=True)
+        many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True)
