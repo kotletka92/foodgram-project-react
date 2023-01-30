@@ -140,7 +140,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                   'name', 'text', 'cooking_time', 'author')
 
     def validate_ingredients(self, value):
-        ingredients = value
+        ingredients = value['ingredients']
         if not ingredients:
             raise ValidationError(
                 {'ingredients': 'You should choose the ingredient!'})
@@ -157,7 +157,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return value
 
     def validate_tags(self, value):
-        tags = value
+        tags = value['tags']
         if not tags:
             raise ValidationError(
                 {'tags': 'You should choose the tag!'})
