@@ -155,7 +155,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                     {'amount': 'Amount should be more than 0!'})
             ingredients_list.append(ingredient)
         return data
-        
+
     def validate_tags(self, data):
         tags = data
         if not tags:
