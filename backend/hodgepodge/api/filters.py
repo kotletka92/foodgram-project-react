@@ -38,5 +38,3 @@ class RecipeFilter(FilterSet):
         if self.request.user.is_authenticated and value:
             return queryset.filter(cart__author=self.request.user)
         return queryset
-
-
