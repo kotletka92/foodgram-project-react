@@ -108,21 +108,12 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class IngredientAddSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(),
-        source='ingredient.id'
-    )
-    name = serializers.CharField(source='ingredient.name', read_only=True)
-    measurement_unit = serializers.CharField(
-        source='ingredient.measurement_unit', read_only=True)
+        queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientAmount
-        fields = ('id', 'name', 'measurement_unit', 'amount')
-        extra_kwargs = {
-            'amount': {
-                'min_value': None,
-            },
-        }
+        fields = ('id', 'amount')
 
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
@@ -184,24 +175,31 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             instance.amount.all(), many=True).data
         return ingredients
 
-    def add_tags_ingredients(self, ingredients, tags, model):
+    def add_tags_ingredients(self, recipe, ingredients):
+        ingredients_list = []
         for ingredient in ingredients:
-            IngredientAmount.objects.update_or_create(
-                recipe=model,
-                ingredient=ingredient['id'],
-                amount=ingredient['amount'])
-        model.tags.set(tags)
+            current_ingredient = ingredient['ingredient']['id']
+            current_amount = ingredient['amount']
+            ingredients_list.append(
+                IngredientAmount(
+                    recipe=recipe,
+                    ingredient=current_ingredient,
+                    amount=current_amount))
+        IngredientAmount.objects.bulk_create(ingredients_list)
 
     def create(self, validated_data):
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('recipe_ingredients')
         tags = validated_data.pop('tags')
+        recipe.tags.add(*tags)
         recipe = super().create(validated_data)
-        self.add_tags_ingredients(ingredients, tags, recipe)
+        self.add_tags_ingredients(ingredients,recipe)
         return recipe
 
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         instance.ingredients.clear()
-        self.add_tags_ingredients(ingredients, tags, instance)
-        return super().update(instance, validated_data)
+        recipe = instance
+        self.save_ingredients(recipe, ingredients)
+        instance.save()
+        return instance
