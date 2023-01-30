@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueTogetherValidator
 
 from api.utils import Base64ImageField
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
@@ -139,23 +138,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('ingredients', 'tags', 'image',
                   'name', 'text', 'cooking_time', 'author')
-        extra_kwargs = {
-            'cooking_time': {
-                'min_value': None,
-            },
-        }
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Recipe.objects.all(),
-                fields=('author', 'name'),
-                message='Вы уже создавали рецепт с таким названием.'
-            )
-        ]
 
     def validate_ingredients(self, value):
-        if value['cooking_time'] <= 0:
-            raise serializers.ValidationError('Время приготовления не может '
-                                              'быть менее минуты.')
         ingredients = value
         if not ingredients:
             raise ValidationError(
