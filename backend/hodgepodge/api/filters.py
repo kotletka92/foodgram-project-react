@@ -1,10 +1,19 @@
 
-from django_filters import rest_framework as filters
+from django_filters.rest_framework import filters, FilterSet
 
 from recipes.models import Ingredient, Recipe, Tag
 
 
-class RecipeFilter(filters.FilterSet):
+class IngredientFilter(FilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name', )
+
+
+
+class RecipeFilter(FilterSet):
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         queryset=Tag.objects.all(),
@@ -28,11 +37,3 @@ class RecipeFilter(filters.FilterSet):
         if value:
             return queryset.filter(shopping_recipe__user=self.request.user)
         return queryset
-
-
-class IngredientFilter(filters.FilterSet):
-    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
-
-    class Meta:
-        model = Ingredient
-        fields = ('name', )
