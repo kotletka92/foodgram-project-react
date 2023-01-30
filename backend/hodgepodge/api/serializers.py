@@ -147,7 +147,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             )
         ]
 
-
     def validate(self, data):
         ingredients = data
         if not ingredients:
