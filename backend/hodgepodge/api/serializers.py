@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator
 
 from api.utils import Base64ImageField
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
@@ -138,6 +139,14 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('ingredients', 'tags', 'image',
                   'name', 'text', 'cooking_time', 'author')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Recipe.objects.all(),
+                fields=('author', 'name'),
+                message='Вы уже создавали рецепт с таким названием.'
+            )
+        ]
+
 
     def validate(self, data):
         ingredients = data
