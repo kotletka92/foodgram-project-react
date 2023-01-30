@@ -154,8 +154,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 raise ValidationError(
                     {'amount': 'Amount should be more than 0!'})
             ingredients_list.append(ingredient)
-        return value
-
+        return data
+        
     def validate_tags(self, data):
         tags = data
         if not tags:
@@ -167,7 +167,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 raise ValidationError(
                     {'tags': 'Tags are the same!'})
             tags_list.append(tag)
-        return value
+        return data
 
     def to_representation(self, instance):
         ingredients = super().to_representation(instance)
