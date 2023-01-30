@@ -1,11 +1,15 @@
 from django_filters.rest_framework import FilterSet, filters
 from rest_framework.filters import SearchFilter
 
-from recipes.models import Recipe, Tag, User
+from recipes.models import Recipe, Tag, User, Ingredient
 
 
 class IngredientFilter(SearchFilter):
-    search_param = 'name'
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name', )
 
 
 class RecipeFilter(FilterSet):
@@ -34,3 +38,5 @@ class RecipeFilter(FilterSet):
         if self.request.user.is_authenticated and value:
             return queryset.filter(cart__author=self.request.user)
         return queryset
+
+
