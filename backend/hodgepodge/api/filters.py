@@ -4,7 +4,8 @@ from rest_framework.filters import SearchFilter
 from recipes.models import Recipe, Tag, User, Ingredient
 
 
-class IngredientFilter(SearchFilter):
+class IngredientFilter(FilterSet):
+
     name = filters.CharFilter(lookup_expr='istartswith')
 
     class Meta:
