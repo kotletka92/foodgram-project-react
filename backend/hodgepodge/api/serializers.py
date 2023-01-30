@@ -138,21 +138,16 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                   'name', 'text', 'cooking_time', 'author')
 
     def validate(self, data):
-        tags = data.get('tags')
-        if len(tags) != len(set([item for item in tags])):
-            raise serializers.ValidationError(
-                {'tags': 'Тэги не могут повторяться'}
-            )
-        cooking_time = data.get('cooking_time')
-        if cooking_time > 300 or cooking_time < 1:
-            raise serializers.ValidationError(
-                {'cooking_time': 'Время приготовления от 1 до 300 минут'}
-            )
-        amount = data.get('ingredients')
-        if [item for item in amount if item['amount'] < 1]:
-            raise serializers.ValidationError(
-                {'amount': 'Минимальное количество ингредиентов = 1'}
-            )
+        ingredient = data['ingredients']
+        list = []
+        for ingredient in list:
+            name = ingredient['id']
+            if name not in list:
+                list.append(name)
+            else:
+                raise serializers.ValidationError(
+                    '‘mmmmmmm'
+                )
         return data
 
     def to_representation(self, instance):
