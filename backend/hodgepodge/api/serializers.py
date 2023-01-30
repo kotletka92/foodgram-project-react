@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueTogetherValidator
 
 from api.utils import Base64ImageField
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
@@ -139,27 +138,20 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('ingredients', 'tags', 'image',
                   'name', 'text', 'cooking_time', 'author')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Recipe.objects.all(),
-                fields=('author', 'name'),
-                message='Вы уже создавали рецепт с таким названием.'
-            )
-        ]
 
-    def validate(self, data):
+    def validate_ingredients(self, data):
         ingredients = data
         if not ingredients:
-            raise ValidationError(
+            raise serializers.ValidationError(
                 {'ingredients': 'You should choose the ingredient!'})
         ingredients_list = []
         for item in ingredients:
             ingredient = get_object_or_404(Ingredient, name=item['id'])
             if ingredient in ingredients_list:
-                raise ValidationError(
+                raise serializers.ValidationError(
                     {'ingredients': 'Indredients are the same!'})
             if int(item['amount']) <= 0:
-                raise ValidationError(
+                raise serializers.ValidationError(
                     {'amount': 'Amount should be more than 0!'})
             ingredients_list.append(ingredient)
         return data
