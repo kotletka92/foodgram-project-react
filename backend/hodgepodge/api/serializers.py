@@ -139,20 +139,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                   'name', 'text', 'cooking_time', 'author')
 
     def validate(self, data):
-        ingredients = data
+        ingredients = data['ingredients']
         if not ingredients:
             raise serializers.ValidationError(
-                {'ingredients': 'You should choose the ingredient!'})
-        ingredients_list = []
-        for item in ingredients:
-            ingredient = get_object_or_404(Ingredient, name=item['id'])
-            if ingredient in ingredients_list:
-                raise serializers.ValidationError(
-                    {'ingredients': 'Indredients are the same!'})
-            if int(item['amount']) <= 0:
-                raise serializers.ValidationError(
-                    {'amount': 'Amount should be more than 0!'})
-            ingredients_list.append(ingredient)
+                'xxxxxxxxxx'
+            )
         return data
 
     def to_representation(self, instance):
