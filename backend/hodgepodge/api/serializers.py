@@ -143,7 +143,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'tags': 'Тэги не могут повторяться'}
             )
-            )
         amount = data.get('ingredients')
         if [item for item in amount if item['amount'] < 1]:
             raise serializers.ValidationError(
