@@ -138,15 +138,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                   'name', 'text', 'cooking_time', 'author')
 
     def validate(self, data):
-        tags = data.get('tags')
-        if not len(set([item for item in tags])):
-            raise serializers.ValidationError(
-                {'tags': 'Нужно выбрать хотя бы один тэг!'}
-            )
-        if len(tags) != len(set([item for item in tags])):
-            raise serializers.ValidationError(
-                {'tags': 'Тэги не могут повторяться'}
-            )
         amount = data.get('ingredients')
         if [item for item in amount if item['amount'] < 1]:
             raise serializers.ValidationError(
