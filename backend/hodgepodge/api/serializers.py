@@ -156,9 +156,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if len(amount) != len(set([item for item in amount])):
             raise serializers.ValidationError(
                 {'name': 'Инредиенты не могут повторяться'}
-            )    
+            )
         return data
-
 
     def to_representation(self, instance):
         ingredients = super().to_representation(instance)
