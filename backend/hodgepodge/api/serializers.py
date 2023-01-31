@@ -144,13 +144,25 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             amount = ingredient['amount']
             if int(amount) < 1:
                 raise serializers.ValidationError({
-                    'amount': 'Количество ингредиента должно быть больше 0!'
+                    'amount': 'Amount should be more than 0!'
                 })
             if ingredient['id'] in list:
                 raise serializers.ValidationError({
-                    'ingredient': 'Ингредиенты должны быть уникальными!'
+                    'ingredient': 'Indredients are the same!'
                 })
             list.append(ingredient['id'])
+        tags = self.initial_data.get('tags')
+        if not tags:
+            raise serializers.ValidationError({
+                'tags': 'You should choose the tag!'
+            })
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise serializers.ValidationError({
+                    'tags': 'Tags are the same!'
+                })
+            tags_list.append(tag)
         return data
 
     def to_representation(self, instance):
