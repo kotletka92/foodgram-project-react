@@ -143,19 +143,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'tags': 'Тэги не могут повторяться'}
             )
-        name = data.get('name')
-        if len(name) != len(set([item for item in name])):
-            raise serializers.ValidationError(
-                {'name': 'Название не могут повторяться'}
             )
         amount = data.get('ingredients')
         if [item for item in amount if item['amount'] < 1]:
             raise serializers.ValidationError(
                 {'amount': 'Минимальное количество ингредиентов = 1'}
-            )
-        if len(amount) != len(set([item for item in amount])):
-            raise serializers.ValidationError(
-                {'name': 'Инредиенты не могут повторяться'}
             )
         return data
 
