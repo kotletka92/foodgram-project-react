@@ -148,6 +148,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'amount': 'Минимальное количество ингредиентов = 1'}
             )
+        amount = data.get('ingredients')
+        if len(amount) != len(set([item for item in amount])):
+            raise serializers.ValidationError(
+                {'amount': 'не могут повторяться'}
+            )
         return data
 
     def to_representation(self, instance):
